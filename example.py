@@ -1,13 +1,10 @@
 # import sqlite3
+import os
 from collections import deque
 
 import telebot
 
-
-with open('TOKEN', 'r') as f:
-    token = f.read()
-
-bot = telebot.TeleBot(token)
+bot = telebot.TeleBot(os.environ.get('TG_BOT_SECRET'))
 
 # conn = sqlite3.connect("cards.db")
 
