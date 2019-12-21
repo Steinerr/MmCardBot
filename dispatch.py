@@ -17,6 +17,12 @@ wizards = {
 }
 
 
+@bot.message_handler(commands=('exit', ))
+def clean_state(msg):
+    storage.pop(msg.from_user.id)
+    bot.reply_to(msg, '[Exit] Ваши предыдущие команды сброшены', reply_markup=None)
+
+
 @bot.message_handler(content_types=['text'])
 def wizard_dispatch(msg):
     print(f'======= Session begin =======')
@@ -48,12 +54,6 @@ def wizard_dispatch(msg):
 
     print(f'UStor: {storage.get(user_id, "empty")}')
     print(f'======= Session end =======\n')
-
-
-@bot.message_handler(commands=('exit', ))
-def clean_state(msg):
-    storage.pop(msg.from_user.id)
-    bot.reply_to(msg, '[Exit] Ваши предыдущие команды сброшены', reply_markup=None)
 
 
 def is_bot_command(msg):
