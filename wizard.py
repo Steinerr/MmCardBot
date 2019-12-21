@@ -78,6 +78,7 @@ class AddCardWizard(SimpleQueueWizard):
 
     def step_bye(self, msg):
         self.buffer.append(msg.text)
+        self.save_card()
         self.bot.reply_to(
             msg,
             '[Шаг 3/3] Я сохранил вашу карточку :)'
