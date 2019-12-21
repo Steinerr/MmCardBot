@@ -2,13 +2,18 @@ import os
 
 import telebot
 
-from wizard import AddCardWizard
+from wizard import AddCardWizard, CheckMeWizard
 
 bot = telebot.TeleBot(os.environ.get('TG_BOT_SECRET'))
 
 
 storage = {
     # '<user_id>': '<wizard_obj>'
+}
+
+wizards = {
+    '/addcard': AddCardWizard,
+    '/checkme': CheckMeWizard,
 }
 
 
@@ -21,9 +26,16 @@ def wizard_dispatch(msg):
 
     user_id = msg.from_user.id
 
-    if is_bot_command(msg) and msg.text == '/addcard':
+    if is_bot_command(msg):
         clear_storage_for_user(msg)
-        wizard = AddCardWizard(msg.from_user.id, bot)
+
+        bot.reply_to(msg, 'Ваши предыдущие команды сброшены')
+
+        wizard_cls = wizards.get(msg.text)
+        if wizard_cls is None:
+            bot.reply_to(msg, 'Команда не может быть выполнена')
+
+        wizard = wizard_cls(msg.from_user.id, bot)
         add_wizard_to_storage(msg.from_user.id, wizard)
         wizard.run_continue(msg)
     elif user_id in storage:
