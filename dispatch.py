@@ -20,7 +20,11 @@ wizards = {
 @bot.message_handler(commands=('exit', ))
 def clean_state(msg):
     storage.pop(msg.from_user.id, None)
-    bot.reply_to(msg, '[Exit] Ваши предыдущие команды сброшены', reply_markup=None)
+    bot.reply_to(
+        msg,
+        '[Exit] Ваши предыдущие команды сброшены',
+        reply_markup=telebot.types.ReplyKeyboardRemove(selective=False)
+    )
 
 
 @bot.message_handler(content_types=['text'])

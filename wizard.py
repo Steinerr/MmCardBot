@@ -124,9 +124,9 @@ class CheckMeWizard(LoopWizard):
         card = self.Card(*cur.fetchone())
         markup = teletypes.InlineKeyboardMarkup(row_width=2)
 
-        markup_options = [teletypes.InlineKeyboardButton(card.translate)]
+        markup_options = [teletypes.InlineKeyboardButton(card.translate, callback_data='Yes')]
         for i in range(3):
-            markup_options.append(teletypes.InlineKeyboardButton(str(uuid.uuid4())))
+            markup_options.append(teletypes.InlineKeyboardButton(str(uuid.uuid4()), callback_data='No!'))
 
         random.shuffle(markup_options)
         markup.add(*markup_options)
