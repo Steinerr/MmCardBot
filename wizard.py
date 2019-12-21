@@ -122,11 +122,11 @@ class CheckMeWizard(LoopWizard):
             (msg.from_user.id, )
         )
         card = self.Card(*cur.fetchone())
-        markup = teletypes.ReplyKeyboardMarkup(row_width=2)
+        markup = teletypes.InlineKeyboardMarkup(row_width=2)
 
-        markup_options = [teletypes.KeyboardButton(card.translate)]
+        markup_options = [teletypes.InlineKeyboardButton(card.translate)]
         for i in range(3):
-            markup_options.append(teletypes.KeyboardButton(str(uuid.uuid4())))
+            markup_options.append(teletypes.InlineKeyboardButton(str(uuid.uuid4())))
 
         random.shuffle(markup_options)
         markup.add(*markup_options)
