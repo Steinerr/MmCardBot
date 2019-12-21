@@ -2,7 +2,7 @@ import os
 import random
 import re
 import uuid
-from collections import deque
+from collections import deque, namedtuple
 
 import psycopg2
 from telebot import types as teletypes
@@ -103,6 +103,7 @@ class AddCardWizard(SimpleQueueWizard):
 
 
 class CheckMeWizard(LoopWizard):
+    Card = namedtuple('Card', 'phrase,translate')
     steps = (
         'show_card',
         # 'check_answer',
@@ -113,17 +114,17 @@ class CheckMeWizard(LoopWizard):
         cur = conn.cursor()
         cur.execute(
             """
-            select * 
+            select c.phrase, c.translate 
             from cards c 
             where c.user_id = %s
             limit 1;
             """,
             (msg.from_user.id, )
         )
-        card = [cur.fetchone()]
+        card = self.Card(*cur.fetchone())
         markup = teletypes.ReplyKeyboardMarkup(row_width=2)
 
-        markup_options = [teletypes.KeyboardButton(str(uuid.uuid4()))]
+        markup_options = [teletypes.KeyboardButton(card.translate)]
         for i in range(3):
             markup_options.append(teletypes.KeyboardButton(str(uuid.uuid4())))
 
