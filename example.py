@@ -67,7 +67,7 @@ class AddCardWizard(SimpleQueueWizard):
     steps = ('input_phrase', 'input_translate', 'bye')
     buffer = []
 
-    def input_phrase(self, msg):
+    def step_input_phrase(self, msg):
         self.buffer.append(msg.from_user.id)
         bot.reply_to(
             msg,
@@ -75,7 +75,7 @@ class AddCardWizard(SimpleQueueWizard):
             reply_markup=telebot.types.ForceReply(selective=False)
         )
 
-    def input_translate(self, msg):
+    def step_input_translate(self, msg):
         self.buffer.append(msg.text)
         bot.reply_to(
             msg,
@@ -83,7 +83,7 @@ class AddCardWizard(SimpleQueueWizard):
             reply_markup=telebot.types.ForceReply(selective=False)
         )
 
-    def bye(self, msg):
+    def step_bye(self, msg):
         self.buffer.append(msg.text)
         bot.reply_to(
             msg,
