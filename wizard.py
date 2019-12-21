@@ -1,3 +1,6 @@
+import os
+
+import psycopg2
 import re
 from collections import deque
 
@@ -61,7 +64,7 @@ class AddCardWizard(SimpleQueueWizard):
         self.buffer.append(msg.from_user.id)
         self.bot.reply_to(
             msg,
-            'Привет! Напиши мне фразу на английском',
+            '[Шаг 1/3] Привет! Напиши мне фразу на английском',
             reply_markup=telebot.types.ForceReply(selective=False)
         )
 
@@ -69,7 +72,7 @@ class AddCardWizard(SimpleQueueWizard):
         self.buffer.append(msg.text)
         self.bot.reply_to(
             msg,
-            'Как это переводится?',
+            '[Шаг 2/3] Как это переводится?',
             reply_markup=telebot.types.ForceReply(selective=False)
         )
 
@@ -77,9 +80,21 @@ class AddCardWizard(SimpleQueueWizard):
         self.buffer.append(msg.text)
         self.bot.reply_to(
             msg,
-            'Я сохранил вашу карточку :)'
+            '[Шаг 3/3] Я сохранил вашу карточку :)'
         )
 
-    def get_next_step(self):
+    def save_card(self):
         print(f'Buffer: {self.buffer}')
-        return super().get_next_step()
+        conn = psycopg2.connect(os.environ.get('DATABASE_URL'), sslmode='require')
+        cur = conn.cursor()
+        res = cur.execute(
+            """
+            INSERT INTO cards (user_id, phrase, translate) 
+            VALUES (%s, %s, %s)
+            """,
+            self.buffer
+        )
+        print(f'{self.name}::save_card::insert::{res}')
+        conn.commit()
+        cur.close()
+        conn.close()
