@@ -34,6 +34,7 @@ def wizard_dispatch(msg):
         wizard_cls = wizards.get(msg.text)
         if wizard_cls is None:
             bot.reply_to(msg, 'Команда не может быть выполнена')
+            return
 
         wizard = wizard_cls(msg.from_user.id, bot)
         add_wizard_to_storage(msg.from_user.id, wizard)
@@ -47,6 +48,12 @@ def wizard_dispatch(msg):
 
     print(f'UStor: {storage.get(user_id, "empty")}')
     print(f'======= Session end =======\n')
+
+
+@bot.message_handler(commands=('exit', ))
+def clean_state(msg):
+    storage.pop(msg.from_user.id)
+    bot.reply_to(msg, '[Exit] Ваши предыдущие команды сброшены', reply_markup=None)
 
 
 def is_bot_command(msg):
