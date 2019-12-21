@@ -19,7 +19,7 @@ wizards = {
 
 @bot.message_handler(commands=('exit', ))
 def clean_state(msg):
-    storage.pop(msg.from_user.id)
+    storage.pop(msg.from_user.id, None)
     bot.reply_to(msg, '[Exit] Ваши предыдущие команды сброшены', reply_markup=None)
 
 
@@ -50,7 +50,7 @@ def wizard_dispatch(msg):
         try:
             wizard.run_continue(msg)
         except IndexError:
-            storage.pop(msg.from_user.id)
+            storage.pop(msg.from_user.id, None)
 
     print(f'UStor: {storage.get(user_id, "empty")}')
     print(f'======= Session end =======\n')
