@@ -118,7 +118,7 @@ class CheckMeWizard(LoopWizard):
             where c.user_id = %s
             limit 1;
             """,
-            msg.from_user.id
+            (msg.from_user.id, )
         )
         card = [cur.fetchone()]
         markup = teletypes.ReplyKeyboardMarkup(row_width=2)
