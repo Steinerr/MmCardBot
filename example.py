@@ -1,5 +1,6 @@
 # import sqlite3
 import os
+import re
 from collections import deque
 
 import telebot
@@ -19,7 +20,6 @@ class WizardException(Exception):
 
 
 class Wizard:
-    name = None
     steps = None
 
     def __init__(self, user_id, **kwargs):
@@ -46,6 +46,10 @@ class Wizard:
     def __repr__(self):
         return self.__str__()
 
+    @property
+    def name(self):
+        return re.sub('([a-z0-9])([A-Z])', r'\1_\2', self.__class__.__name__).lower()
+
 
 class LoopQueueWizard(Wizard):
     def get_next_step(self):
@@ -59,8 +63,40 @@ class SimpleQueueWizard(Wizard):
         return self.current_state.pop()
 
 
+class AddCardWizard(SimpleQueueWizard):
+    steps = ('input_phrase', 'input_translate', 'bye')
+    buffer = []
+
+    def input_phrase(self, msg):
+        self.buffer.append(msg.from_user.id)
+        bot.reply_to(
+            msg,
+            'Привет! Напиши мне фразу на английском',
+            reply_markup=telebot.types.ForceReply(selective=False)
+        )
+
+    def input_translate(self, msg):
+        self.buffer.append(msg.text)
+        bot.reply_to(
+            msg,
+            'Как это переводится?',
+            reply_markup=telebot.types.ForceReply(selective=False)
+        )
+
+    def bye(self, msg):
+        self.buffer.append(msg.text)
+        bot.reply_to(
+            msg,
+            'Я сохранил вашу карточку :)',
+            reply_markup=telebot.types.ForceReply(selective=False)
+        )
+
+    def get_next_step(self):
+        print(f'Buffer: {self.buffer}')
+        return super().get_next_step()
+
+
 class ExampleWizard(SimpleQueueWizard):
-    name = 'example_wizard'
     steps = ('start', 'second', 'third', 'end')
 
     def step_start(self, msg):
@@ -106,7 +142,7 @@ def wizard_dispatch(msg):
 
     if is_bot_command(msg) and msg.text == '/addcard':
         clear_storage_for_user(msg)
-        wizard = ExampleWizard(msg.from_user.id)
+        wizard = AddCardWizard(msg.from_user.id)
         add_wizard_to_storage(msg.from_user.id, wizard)
         wizard.run_continue(msg)
     elif user_id in storage:
