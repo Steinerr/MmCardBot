@@ -109,7 +109,6 @@ class CheckMeWizard(LoopWizard):
     )
 
     def step_show_card(self, msg):
-        print(f'Buffer: {self.buffer}')
         conn = psycopg2.connect(os.environ.get('DATABASE_URL'), sslmode='require')
         cur = conn.cursor()
         cur.execute(
